@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <title>MC 文件转换为 TXT</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    textarea { width: 100%; height: 300px; }
+    #output { white-space: pre; background: #f0f0f0; padding: 10px; }
+    table { border-collapse: collapse; margin-top: 20px; }
+    table, th, td { border: 1px solid #aaa; padding: 5px; }
+  </style>
+</head>
+<body>
+  <h2>MC 文件转换为 TXT</h2>
+  <p>选择一个 xxx.mc 文件，然后点击转换按钮。</p>
+  <input type="file" id="fileInput" accept=".mc,.txt,.json">
+  <button id="convertBtn">转换并下载 TXT</button>
+  <hr>
+  <h3>计算结果</h3>
+  <div id="calcResult"></div>
+  <h3>BPM 变化区间</h3>
+  <div id="timeTable"></div>
+  <h3>生成的 TXT 内容</h3>
+  <textarea id="output" readonly></textarea>
+
+  <script>
+    // 工具函数：将 beat 数组转换为浮点数（如 [1,0,4] 转换为 1.0，[2,2,4] 为 2.5）
+    function beatArrayToFloat(arr) {
+      // arr = [整数部分, 分子, 分母]
+      return arr[0] + arr[1] / arr[2];
+    }
+
+    // 根据 time 列表，将任意 beat 转换到“基准 BPM”下的等效节拍
+    // 参数：
+    // - beatVal: 待转换的 beat 值
+    // - timeList: 数组，每个元素包含 { beat: [...], bpm: ... }
+    // - baseBPM: 基准 bpm（timeList[0].bpm）
+    // 要求 timeList 按 beat 升序排列，且第一个的 beat 应该为 [0,0,1]
+    function convertBeat(beatVal, timeList, baseBPM) {
+      let converted = 0;
+      for (let i = 0; i < timeList.length; i++) {
+        let segStart = beatArrayToFloat(timeList[i].beat);
+        let segBPM = timeList[i].bpm;
+        let segEnd = (i < timeList.length - 1) ? beatArrayToFloat(timeList[i+1].beat) : Infinity;
+        if (beatVal >= segEnd) {
+          let segLength = segEnd - segStart;
+          converted += segLength * (baseBPM / segBPM);
+        } else {
+          let segLength = beatVal - segStart;
+          converted += segLength * (baseBPM / segBPM);
+          break;
+        }
+      }
+      return converted;
+    }
+
+    // 生成 BPM 变化区间表格
+    function generateTimeTable(timeList) {
+      let html = '<table><tr><th>段序号</th><th>起始 Beat</th><th>BPM</th></tr>';
+      for (let i = 0; i < timeList.length; i++) {
+        let beatVal = beatArrayToFloat(timeList[i].beat);
+        html += `<tr><td>${i}</td><td>${beatVal.toFixed(2)}</td><td>${timeList[i].bpm}</td></tr>`;
+      }
+      html += '</table>';
+      return html;
+    }
+
+    // 读取并解析文件，执行转换
+    document.getElementById("convertBtn").addEventListener("click", function() {
+      const fileInput = document.getElementById("fileInput");
+      if (!fileInput.files.length) {
+        alert("请先选择一个文件。");
+        return;
+      }
+      const file = fileInput.files[0];
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const jsonData = JSON.parse(e.target.result);
+          const timeList = jsonData.time;
+          if (!timeList || timeList.length === 0) {
+            alert("未找到 time 列表！");
+            return;
+          }
+          // 基准 BPM 使用 timeList[0]（其 beat 应为 [0,0,1]）
+          const baseBPM = timeList[0].bpm;
+          // 显示 BPM 变化区间
+          document.getElementById("timeTable").innerHTML = generateTimeTable(timeList);
+
+          // 查找 offset：通过递归搜索整个 JSON 对象，取第一个遇到的 offset
+          let offset = null;
+          function searchOffset(obj) {
+            if (typeof obj === "object" && obj !== null) {
+              for (let key in obj) {
+                if (key === "offset" && typeof obj[key] === "number") {
+                  offset = obj[key];
+                  return;
+                } else {
+                  searchOffset(obj[key]);
+                  if (offset !== null) return;
+                }
+              }
+            }
+          }
+          searchOffset(jsonData);
+          if (offset === null) {
+            alert("未找到 offset！");
+            return;
+          }
+
+          // 读取 note 列表
+          const noteList = jsonData.note;
+          if (!noteList || noteList.length === 0) {
+            alert("未找到 note 列表！");
+            return;
+          }
+
+          // 排除最后那行带有 sound 属性的额外条目（如果存在）
+          const filteredNotes = noteList.filter(note => !("sound" in note));
+
+          // 取第一个 note 的 beat 作为基准（假设至少有一个 note）
+          const firstNoteBeat = beatArrayToFloat(filteredNotes[0].beat);
+          const firstConverted = convertBeat(firstNoteBeat, timeList, baseBPM);
+          // 起始时间计算：60/baseBPM * firstNoteBeat - offset/1000
+          const startTime = 60 / baseBPM * firstNoteBeat - offset / 1000;
+
+          // 显示计算信息
+          document.getElementById("calcResult").innerText =
+            `基准 BPM: ${baseBPM}\n` +
+            `offset: ${offset} ms\n` +
+            `第一个 note 的 beat: ${firstNoteBeat}\n` +
+            `转换后的第一个 beat: ${firstConverted.toFixed(4)}\n` +
+            `起始时间: ${startTime.toFixed(4)} 秒`;
+
+          // 对每个 note 生成 TXT 行
+          let txtLines = [];
+          for (let note of filteredNotes) {
+            const col = note.column;  // 0-based，输出时用 (column+1)
+            const colStr = (col + 1).toString();
+            const noteStart = beatArrayToFloat(note.beat);
+            const convStart = convertBeat(noteStart, timeList, baseBPM) - firstConverted;
+            let line = "";
+            if ("endbeat" in note) {
+              const noteEnd = beatArrayToFloat(note.endbeat);
+              const convEnd = convertBeat(noteEnd, timeList, baseBPM) - firstConverted;
+              line = `${colStr}-${convStart.toFixed(2)}-${convEnd.toFixed(2)}`;
+            } else {
+              line = `${colStr}-${convStart.toFixed(2)}`;
+            }
+            txtLines.push(line);
+          }
+          const outputText = txtLines.join("\n");
+          document.getElementById("output").value = outputText;
+
+          // 根据原文件名生成下载文件名
+          let originalName = file.name;
+          let nameWithoutExt = originalName.lastIndexOf('.') !== -1 ? originalName.substring(0, originalName.lastIndexOf('.')) : originalName;
+          let downloadName = "converted-" + nameWithoutExt + ".txt";
+
+          // 创建下载链接
+          const blob = new Blob([outputText], { type: "text/plain" });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = downloadName;
+          a.click();
+          URL.revokeObjectURL(url);
+        } catch (err) {
+          alert("解析文件出错：" + err);
+        }
+      }
+      reader.readAsText(file);
+    });
+  </script>
+</body>
+</html>
