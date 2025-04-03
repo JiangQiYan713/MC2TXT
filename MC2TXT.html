@@ -1,42 +1,139 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-  <meta charset="UTF-8">
-  <title>MC 文件转换为 TXT</title>
-  <style>
-    body { font-family: Arial, sans-serif; margin: 20px; }
-    textarea { width: 100%; height: 300px; }
-    #output { white-space: pre; background: #f0f0f0; padding: 10px; }
-    table { border-collapse: collapse; margin-top: 20px; }
-    table, th, td { border: 1px solid #aaa; padding: 5px; }
-  </style>
+<meta charset="UTF-8">
+<title>MC 文件转换工具</title>
+<style>
+/* 基础样式 */
+body {
+    font-family: 'Microsoft YaHei', Arial, sans-serif;
+    margin: 20px;
+    background: #f0f2f5;
+    color: #333;
+}
+
+/* 主容器 */
+h2 {
+    color: #2c3e50;
+    border-bottom: 2px solid #6322b6;
+    padding-bottom: 8px;
+    margin-bottom: 20px;
+}
+
+/* 文件输入区域 */
+input[type="file"] {
+    padding: 8px;
+    border: 2px solid #6322b6;
+    border-radius: 4px;
+    width: 70%;
+    margin-right: 10px;
+}
+
+button {
+    background: #6322b6;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+button:hover {
+    background: #fe2ce5;
+}
+
+/* 结果展示区域 */
+#calcResult {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 6px;
+    margin: 15px 0;
+    border: 1px solid #ddd;
+}
+
+/* 双列布局 */
+h3 {
+    display: inline-block;
+    width: 48%;
+    margin: 10px 1%;
+}
+
+textarea {
+    width: 48%;
+    height: 300px;
+    margin: 0 1%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background: #fff;
+    font-family: Consolas, monospace;
+    float: left;
+}
+
+/* 表格样式 */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 15px 0;
+    background: white;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+th, td {
+    border: 1px solid #ddd;
+    padding: 12px;
+    text-align: left;
+}
+
+th {
+    background: #6322b6;
+    color: white;
+}
+
+tr:nth-child(even) {
+    background: #f8f9fa;
+}
+
+/* 清除浮动 */
+hr {
+    clear: both;
+    margin: 20px 0;
+}
+</style>
 </head>
+
 <body>
-  <h2>MC 文件转换为 TXT</h2>
+  <h2>MC 文件转换工具
+  <a href="https://github.com/JiangQiYan713/MC2TXT" target="_blank" style="text-decoration: none; <a href="https://github.com/JiangQiYan713/MC2TXT" target="_blank" style="text-decoration: none; color: inherit;">
+  <img src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png" alt="GitHub" title=" Produced by 江祈言-JiangQiYan713" style="width:16px;height:16px;vertical-align:middle;margin-right:4px;">
+  </a>
+  </h2>
   <p>选择一个 xxx.mc 文件，然后点击转换按钮。</p>
   <input type="file" id="fileInput" accept=".mc,.txt,.json">
   <button id="convertBtn">转换并下载 TXT</button>
   <hr>
   <h3>计算结果</h3>
-  <div id="calcResult"></div>
+  <div id="calcResult" class="calc-info"></div>
   <h3>BPM 变化区间</h3>
   <div id="timeTable"></div>
-  <h3>生成的 TXT 内容</h3>
+  <h3>生成的 TXT 内容 (normal)</h3>
   <textarea id="output" readonly></textarea>
+  <h3>生成的 SV TXT 内容 (scroll, 如存在)</h3>
+  <textarea id="outputSV" readonly></textarea>
 
   <script>
     // 工具函数：将 beat 数组转换为浮点数（如 [1,0,4] 转换为 1.0，[2,2,4] 为 2.5）
     function beatArrayToFloat(arr) {
-      // arr = [整数部分, 分子, 分母]
       return arr[0] + arr[1] / arr[2];
     }
 
-    // 根据 time 列表，将任意 beat 转换到“基准 BPM”下的等效节拍
+    // 根据 time 列表，将任意 beat 转换到基准 BPM 下的等效节拍
     // 参数：
     // - beatVal: 待转换的 beat 值
     // - timeList: 数组，每个元素包含 { beat: [...], bpm: ... }
     // - baseBPM: 基准 bpm（timeList[0].bpm）
-    // 要求 timeList 按 beat 升序排列，且第一个的 beat 应该为 [0,0,1]
+    // 假设 timeList 按 beat 升序排列，且第一个 beat 应该为 [0,0,1]
     function convertBeat(beatVal, timeList, baseBPM) {
       let converted = 0;
       for (let i = 0; i < timeList.length; i++) {
@@ -88,7 +185,7 @@
           // 显示 BPM 变化区间
           document.getElementById("timeTable").innerHTML = generateTimeTable(timeList);
 
-          // 查找 offset：通过递归搜索整个 JSON 对象，取第一个遇到的 offset
+          // 查找 offset，通过递归搜索整个 JSON 对象，取第一个遇到的 offset
           let offset = null;
           function searchOffset(obj) {
             if (typeof obj === "object" && obj !== null) {
@@ -115,25 +212,22 @@
             alert("未找到 note 列表！");
             return;
           }
-
-          // 排除最后那行带有 sound 属性的额外条目（如果存在）
+          // 排除含有 sound 属性的条目（防止干扰转换）
           const filteredNotes = noteList.filter(note => !("sound" in note));
 
-          // 取第一个 note 的 beat 作为基准（假设至少有一个 note）
+          // 取第一个 note 的 beat 作为基准
           const firstNoteBeat = beatArrayToFloat(filteredNotes[0].beat);
           const firstConverted = convertBeat(firstNoteBeat, timeList, baseBPM);
-          // 起始时间计算：60/baseBPM * firstNoteBeat - offset/1000
+          // 起始时间计算：60/baseBPM * 第一个 note 的 beat - offset/1000
           const startTime = 60 / baseBPM * firstNoteBeat - offset / 1000;
 
-          // 显示计算信息
-          document.getElementById("calcResult").innerText =
-            `基准 BPM: ${baseBPM}\n` +
-            `offset: ${offset} ms\n` +
-            `第一个 note 的 beat: ${firstNoteBeat}\n` +
-            `转换后的第一个 beat: ${firstConverted.toFixed(4)}\n` +
-            `起始时间: ${startTime.toFixed(4)} 秒`;
+          // 显示计算信息（基准 BPM 和起始时间加粗）
+          document.getElementById("calcResult").innerHTML =
+            `基准 BPM: <strong>${baseBPM}</strong>，\n` +
+            `offset: ${offset} ms，\n` +
+            `起始时间: <strong>${startTime.toFixed(4)}</strong> 秒。`;
 
-          // 对每个 note 生成 TXT 行
+          // 生成普通 note 的 TXT 行
           let txtLines = [];
           for (let note of filteredNotes) {
             const col = note.column;  // 0-based，输出时用 (column+1)
@@ -150,22 +244,51 @@
             }
             txtLines.push(line);
           }
-          const outputText = txtLines.join("\n");
-          document.getElementById("output").value = outputText;
+          const normalOutput = txtLines.join("\n");
+          document.getElementById("output").value = normalOutput;
+
+          // 生成 SV TXT 行（若 effect 数组不为空）
+          let effectOutput = "";
+          if (jsonData.effect && Array.isArray(jsonData.effect) && jsonData.effect.length > 0) {
+            let svLines = [];
+            for (let eff of jsonData.effect) {
+              // 仅处理含有 scroll 属性的条目
+              if ("scroll" in eff) {
+                const effBeat = beatArrayToFloat(eff.beat);
+                const convEff = convertBeat(effBeat, timeList, baseBPM) - firstConverted;
+                svLines.push(`${convEff.toFixed(2)},${eff.scroll}`);
+              }
+            }
+            effectOutput = svLines.join("\n");
+          }
+          document.getElementById("outputSV").value = effectOutput;
 
           // 根据原文件名生成下载文件名
           let originalName = file.name;
           let nameWithoutExt = originalName.lastIndexOf('.') !== -1 ? originalName.substring(0, originalName.lastIndexOf('.')) : originalName;
-          let downloadName = "converted-" + nameWithoutExt + ".txt";
+          let downloadNameNormal = "converted-" + nameWithoutExt + ".txt";
+          let downloadNameSV = "converted-sv-" + nameWithoutExt + ".txt";
 
           // 创建下载链接
-          const blob = new Blob([outputText], { type: "text/plain" });
-          const url = URL.createObjectURL(blob);
-          const a = document.createElement("a");
-          a.href = url;
-          a.download = downloadName;
-          a.click();
-          URL.revokeObjectURL(url);
+          // 总是下载普通 TXT 文件
+          const blobNormal = new Blob([normalOutput], { type: "text/plain" });
+          const urlNormal = URL.createObjectURL(blobNormal);
+          const aNormal = document.createElement("a");
+          aNormal.href = urlNormal;
+          aNormal.download = downloadNameNormal;
+          aNormal.click();
+          URL.revokeObjectURL(urlNormal);
+
+          // 如果 effect 有数据，则下载 SV TXT 文件
+          if (effectOutput.trim() !== "") {
+            const blobSV = new Blob([effectOutput], { type: "text/plain" });
+            const urlSV = URL.createObjectURL(blobSV);
+            const aSV = document.createElement("a");
+            aSV.href = urlSV;
+            aSV.download = downloadNameSV;
+            aSV.click();
+            URL.revokeObjectURL(urlSV);
+          }
         } catch (err) {
           alert("解析文件出错：" + err);
         }
