@@ -56,6 +56,10 @@ BPM 计算：
 
 ### 4.文件下载与命名
 
-最后，生成的 TXT 文件会自动创建下载链接。为了便于识别，下载的文件名格式为 converted-原文件名.txt，例如用户上传的文件名为 xxx.mc，转换后的文件名将为 converted-xxx.txt。
+最后，生成的 TXT 文件会自动创建下载链接。为了便于识别，下载的文件名格式为 converted-原文件名.txt。
+例如用户上传的文件名为 xxx.mc，转换后的文件名将为 converted-xxx.txt，
+若存在变速谱面文件，转换后的文件名将为 converted-sv-xxx.txt。
+
+## 使用愉快！
 
 
