@@ -1,117 +1,118 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-<meta charset="UTF-8">
-<title>MC 文件转换工具</title>
-<style>
-/* 基础样式 */
-body {
-    font-family: 'Microsoft YaHei', Arial, sans-serif;
-    margin: 20px;
-    background: #f0f2f5;
-    color: #333;
-}
-
-/* 主容器 */
-h2 {
-    color: #2c3e50;
-    border-bottom: 2px solid #6322b6;
-    padding-bottom: 8px;
-    margin-bottom: 20px;
-}
-
-/* 文件输入区域 */
-input[type="file"] {
-    padding: 8px;
-    border: 2px solid #6322b6;
-    border-radius: 4px;
-    width: 70%;
-    margin-right: 10px;
-}
-
-button {
-    background: #6322b6;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background 0.2s;
-}
-
-button:hover {
-    background: #fe2ce5;
-}
-
-/* 结果展示区域 */
-#calcResult {
-    background: #f8f9fa;
-    padding: 15px;
-    border-radius: 6px;
-    margin: 15px 0;
-    border: 1px solid #ddd;
-}
-
-/* 双列布局 */
-h3 {
-    display: inline-block;
-    width: 48%;
-    margin: 10px 1%;
-}
-
-textarea {
-    width: 48%;
-    height: 300px;
-    margin: 0 1%;
-    padding: 12px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    background: #fff;
-    font-family: Consolas, monospace;
-    float: left;
-}
-
-/* 表格样式 */
-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin: 15px 0;
-    background: white;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-}
-
-th, td {
-    border: 1px solid #ddd;
-    padding: 12px;
-    text-align: left;
-}
-
-th {
-    background: #6322b6;
-    color: white;
-}
-
-tr:nth-child(even) {
-    background: #f8f9fa;
-}
-
-/* 清除浮动 */
-hr {
-    clear: both;
-    margin: 20px 0;
-}
-</style>
+  <meta charset="UTF-8">
+  <title>MC 文件转换工具</title>
+  <style>
+    /* 基础样式 */
+    body {
+      font-family: 'Microsoft YaHei', Arial, sans-serif;
+      margin: 20px;
+      background: #f0f2f5;
+      color: #333;
+    }
+    /* 主容器 */
+    h2 {
+      color: #2c3e50;
+      border-bottom: 2px solid #6322b6;
+      padding-bottom: 8px;
+      margin-bottom: 20px;
+    }
+    /* 文件输入区域 */
+    input[type="file"] {
+      padding: 8px;
+      border: 2px solid #6322b6;
+      border-radius: 4px;
+      width: 70%;
+      margin-right: 10px;
+    }
+    button {
+      background: #6322b6;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background 0.2s;
+      margin-right: 10px;
+    }
+    button:hover {
+      background: #fe2ce5;
+    }
+    /* 复选框 */
+    label {
+      font-size: 14px;
+      margin-right: 20px;
+    }
+    /* 结果展示区域 */
+    #calcResult {
+      background: #f8f9fa;
+      padding: 15px;
+      border-radius: 6px;
+      margin: 15px 0;
+      border: 1px solid #ddd;
+    }
+    /* 双列布局 */
+    h3 {
+      display: inline-block;
+      width: 48%;
+      margin: 10px 1%;
+    }
+    textarea {
+      width: 48%;
+      height: 300px;
+      margin: 0 1%;
+      padding: 12px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      background: #fff;
+      font-family: Consolas, monospace;
+      float: left;
+    }
+    /* 表格样式 */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 15px 0;
+      background: white;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 12px;
+      text-align: left;
+    }
+    th {
+      background: #6322b6;
+      color: white;
+    }
+    tr:nth-child(even) {
+      background: #f8f9fa;
+    }
+    /* 清除浮动 */
+    hr {
+      clear: both;
+      margin: 20px 0;
+    }
+    .calc-info strong {
+      color: #000;
+    }
+  </style>
 </head>
-
 <body>
   <h2>MC 文件转换工具
-  <a href="https://github.com/JiangQiYan713/MC2TXT" target="_blank" style="text-decoration: none; <a href="https://github.com/JiangQiYan713/MC2TXT" target="_blank" style="text-decoration: none; color: inherit;">
-  <img src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png" alt="GitHub" title=" Produced by 江祈言-JiangQiYan713" style="width:16px;height:16px;vertical-align:middle;margin-right:4px;">
-  </a>
+    <a href="https://github.com/JiangQiYan713/MC2TXT" target="_blank" style="text-decoration: none; color: inherit;">
+      <img src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png" alt="GitHub" title=" Produced by 江祈言-JiangQiYan713" style="width:16px;height:16px;vertical-align:middle;margin-right:4px;">
+    </a>
   </h2>
-  <p>选择一个 xxx.mc 文件，然后点击转换按钮。</p>
+  <p>选择一个 xxx.mc 文件，然后点击“转换”按钮。</p>
   <input type="file" id="fileInput" accept=".mc,.txt,.json">
-  <button id="convertBtn">转换并下载 TXT</button>
+  <button id="convertBtn">转换</button>
+  <!-- 下载按钮与复选框 -->
+  <label>
+    <input type="checkbox" id="mergeCheckbox" checked> 同类项合并
+  </label>
+  <button id="downloadBtn">下载</button>
   <hr>
   <h3>计算结果</h3>
   <div id="calcResult" class="calc-info"></div>
@@ -123,6 +124,11 @@ hr {
   <textarea id="outputSV" readonly></textarea>
 
   <script>
+    // 全局变量存储转换结果
+    let globalNormalLines = null;
+    let globalEffectLines = null;
+    let globalFileName = "";
+
     // 工具函数：将 beat 数组转换为浮点数（如 [1,0,4] 转换为 1.0，[2,2,4] 为 2.5）
     function beatArrayToFloat(arr) {
       return arr[0] + arr[1] / arr[2];
@@ -162,8 +168,61 @@ hr {
       html += '</table>';
       return html;
     }
+    
+    // 合并同类项函数，对于 normalLines
+    // 只有当相同的 beat（或 beat区间）完全一致时合并，合并后轨道数字按从大到小排列后前置
+    function mergeLines(lines) {
+      const groups = {};
+      lines.forEach(line => {
+        let parts = line.split("-");
+        let key;
+        if (parts.length === 2) {
+          key = parts[1];  // 单点音符
+        } else if (parts.length === 3) {
+          key = parts[1] + "-" + parts[2]; // 长条音符
+        }
+        if (!groups[key]) {
+          groups[key] = [];
+        }
+        groups[key].push(parseInt(parts[0]));
+      });
+      const merged = [];
+      for (let key in groups) {
+        let cols = groups[key];
+        // 排序降序
+        cols.sort((a, b) => b - a);
+        let mergedCol = cols.join("");
+        merged.push(mergedCol + "-" + key);
+      }
+      return merged;
+    }
 
-    // 读取并解析文件，执行转换
+    // 拆分合并行，将合并行拆分为原始行
+    function splitMergedLine(line) {
+      let parts = line.split("-");
+      let mergedCols = parts[0];
+      let rest = parts.slice(1).join("-");
+      let splitted = [];
+      for (let i = 0; i < mergedCols.length; i++) {
+        splitted.push(mergedCols[i] + "-" + rest);
+      }
+      return splitted;
+    }
+
+    // 更新文本框显示内容，根据复选框状态决定是否合并
+    function updateOutputDisplay() {
+      if (!globalNormalLines) return;
+      const mergeChecked = document.getElementById("mergeCheckbox").checked;
+      let displayLines = [];
+      if (mergeChecked) {
+        displayLines = mergeLines(globalNormalLines);
+      } else {
+        displayLines = globalNormalLines;
+      }
+      document.getElementById("output").value = displayLines.join("\n");
+    }
+
+    // 读取并解析文件，执行转换（仅转换，不下载）
     document.getElementById("convertBtn").addEventListener("click", function() {
       const fileInput = document.getElementById("fileInput");
       if (!fileInput.files.length) {
@@ -171,6 +230,7 @@ hr {
         return;
       }
       const file = fileInput.files[0];
+      globalFileName = file.name;  // 存储原文件名
       const reader = new FileReader();
       reader.onload = function(e) {
         try {
@@ -223,13 +283,13 @@ hr {
 
           // 显示计算信息（基准 BPM 和起始时间加粗）
           document.getElementById("calcResult").innerHTML =
-            `基准 BPM: <strong>${baseBPM}</strong>，\n` +
-            `offset: ${offset} ms，\n` +
+            `基准 BPM: <strong>${baseBPM}</strong>，<br>` +
+            `offset: ${offset} ms，<br>` +
             `起始时间: <strong>${startTime.toFixed(4)}</strong> 秒。`;
 
           // 生成普通 note 的 TXT 行
           let txtLines = [];
-          for (let note of filteredNotes) {
+          filteredNotes.forEach(note => {
             const col = note.column;  // 0-based，输出时用 (column+1)
             const colStr = (col + 1).toString();
             const noteStart = beatArrayToFloat(note.beat);
@@ -243,58 +303,79 @@ hr {
               line = `${colStr}-${convStart.toFixed(2)}`;
             }
             txtLines.push(line);
-          }
-          const normalOutput = txtLines.join("\n");
-          document.getElementById("output").value = normalOutput;
+          });
+          globalNormalLines = txtLines; // 保存原始行数组
+
+          // 更新输出文本框显示（根据当前复选框状态）
+          updateOutputDisplay();
 
           // 生成 SV TXT 行（若 effect 数组不为空）
-          let effectOutput = "";
+          let effectLines = [];
           if (jsonData.effect && Array.isArray(jsonData.effect) && jsonData.effect.length > 0) {
-            let svLines = [];
-            for (let eff of jsonData.effect) {
-              // 仅处理含有 scroll 属性的条目
+            jsonData.effect.forEach(eff => {
               if ("scroll" in eff) {
                 const effBeat = beatArrayToFloat(eff.beat);
                 const convEff = convertBeat(effBeat, timeList, baseBPM) - firstConverted;
-                svLines.push(`${convEff.toFixed(2)},${eff.scroll}`);
+                effectLines.push(`${convEff.toFixed(2)},${eff.scroll}`);
               }
-            }
-            effectOutput = svLines.join("\n");
+            });
           }
-          document.getElementById("outputSV").value = effectOutput;
+          globalEffectLines = effectLines; // 保存 effect 行数组
+          document.getElementById("outputSV").value = effectLines.join("\n");
 
-          // 根据原文件名生成下载文件名
-          let originalName = file.name;
-          let nameWithoutExt = originalName.lastIndexOf('.') !== -1 ? originalName.substring(0, originalName.lastIndexOf('.')) : originalName;
-          let downloadNameNormal = "converted-" + nameWithoutExt + ".txt";
-          let downloadNameSV = "converted-sv-" + nameWithoutExt + ".txt";
-
-          // 创建下载链接
-          // 总是下载普通 TXT 文件
-          const blobNormal = new Blob([normalOutput], { type: "text/plain" });
-          const urlNormal = URL.createObjectURL(blobNormal);
-          const aNormal = document.createElement("a");
-          aNormal.href = urlNormal;
-          aNormal.download = downloadNameNormal;
-          aNormal.click();
-          URL.revokeObjectURL(urlNormal);
-
-          // 如果 effect 有数据，则下载 SV TXT 文件
-          if (effectOutput.trim() !== "") {
-            const blobSV = new Blob([effectOutput], { type: "text/plain" });
-            const urlSV = URL.createObjectURL(blobSV);
-            const aSV = document.createElement("a");
-            aSV.href = urlSV;
-            aSV.download = downloadNameSV;
-            aSV.click();
-            URL.revokeObjectURL(urlSV);
-          }
+          alert("转换完成，请点击下载按钮下载文件。");
         } catch (err) {
           alert("解析文件出错：" + err);
         }
       }
       reader.readAsText(file);
     });
+
+    // 下载按钮事件
+    document.getElementById("downloadBtn").addEventListener("click", function() {
+      if (!globalNormalLines) {
+        alert("请先进行转换！");
+        return;
+      }
+      const mergeChecked = document.getElementById("mergeCheckbox").checked;
+      let normalLinesToDownload = [];
+      if (mergeChecked) {
+        normalLinesToDownload = mergeLines(globalNormalLines);
+      } else {
+        normalLinesToDownload = globalNormalLines;
+      }
+      const normalOutput = normalLinesToDownload.join("\n");
+
+      // 根据原文件名生成下载文件名
+      let originalName = globalFileName;
+      let nameWithoutExt = originalName.lastIndexOf('.') !== -1 ? originalName.substring(0, originalName.lastIndexOf('.')) : originalName;
+      let downloadNameNormal = "converted-" + nameWithoutExt + ".txt";
+      let downloadNameSV = "converted-sv-" + nameWithoutExt + ".txt";
+
+      // 下载普通 TXT 文件
+      const blobNormal = new Blob([normalOutput], { type: "text/plain" });
+      const urlNormal = URL.createObjectURL(blobNormal);
+      const aNormal = document.createElement("a");
+      aNormal.href = urlNormal;
+      aNormal.download = downloadNameNormal;
+      aNormal.click();
+      URL.revokeObjectURL(urlNormal);
+
+      // 如果 effect 有数据，则下载 SV TXT 文件
+      if (globalEffectLines && globalEffectLines.length > 0) {
+        const effectOutput = globalEffectLines.join("\n");
+        const blobSV = new Blob([effectOutput], { type: "text/plain" });
+        const urlSV = URL.createObjectURL(blobSV);
+        const aSV = document.createElement("a");
+        aSV.href = urlSV;
+        aSV.download = downloadNameSV;
+        aSV.click();
+        URL.revokeObjectURL(urlSV);
+      }
+    });
+
+    // 当复选框状态变化时，更新文本框显示
+    document.getElementById("mergeCheckbox").addEventListener("change", updateOutputDisplay);
   </script>
 </body>
 </html>
