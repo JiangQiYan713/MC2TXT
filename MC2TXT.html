@@ -2,6 +2,7 @@
 <html lang="zh">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>MC 文件转换工具</title>
   <style>
     /* 基础样式 */
@@ -10,6 +11,7 @@
       margin: 20px;
       background: #f0f2f5;
       color: #333;
+      box-sizing: border-box;
     }
     /* 主容器 */
     h2 {
@@ -17,14 +19,17 @@
       border-bottom: 2px solid #6322b6;
       padding-bottom: 8px;
       margin-bottom: 20px;
+      text-align: center;
     }
     /* 文件输入区域 */
     input[type="file"] {
       padding: 8px;
       border: 2px solid #6322b6;
       border-radius: 4px;
-      width: 70%;
+      width: 90%;
       margin-right: 10px;
+      display: block;
+      margin: 10px auto;
     }
     button {
       background: #6322b6;
@@ -34,7 +39,7 @@
       border-radius: 4px;
       cursor: pointer;
       transition: background 0.2s;
-      margin-right: 10px;
+      margin: 10px 5px;
     }
     button:hover {
       background: #fe2ce5;
@@ -43,6 +48,7 @@
     label {
       font-size: 14px;
       margin-right: 20px;
+      display: inline-block;
     }
     /* 结果展示区域 */
     #calcResult {
@@ -52,22 +58,26 @@
       margin: 15px 0;
       border: 1px solid #ddd;
     }
-    /* 双列布局 */
-    h3 {
-      display: inline-block;
+    /* 双列布局（响应式） */
+    .half-width {
       width: 48%;
-      margin: 10px 1%;
+      margin: 1%;
+      float: left;
+      box-sizing: border-box;
     }
     textarea {
-      width: 48%;
+      width: 100%;
       height: 300px;
-      margin: 0 1%;
       padding: 12px;
       border: 1px solid #ddd;
       border-radius: 4px;
       background: #fff;
       font-family: Consolas, monospace;
-      float: left;
+      resize: vertical;
+    }
+    h3 {
+      margin: 10px 0;
+      clear: both;
     }
     /* 表格样式 */
     table {
@@ -97,6 +107,16 @@
     .calc-info strong {
       color: #000;
     }
+    /* 小屏幕调整 */
+    @media (max-width: 600px) {
+      .half-width {
+        width: 100%;
+        margin: 5px 0;
+      }
+      input[type="file"] {
+        width: 100%;
+      }
+    }
   </style>
 </head>
 <body>
@@ -105,23 +125,29 @@
       <img src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png" alt="GitHub" title=" Produced by 江祈言-JiangQiYan713" style="width:16px;height:16px;vertical-align:middle;margin-right:4px;">
     </a>
   </h2>
-  <p>选择一个 xxx.mc 文件，然后点击“转换”按钮。</p>
-  <input type="file" id="fileInput" accept=".mc,.txt,.json">
-  <button id="convertBtn">转换</button>
-  <!-- 下载按钮与复选框 -->
-  <label>
-    <input type="checkbox" id="mergeCheckbox" checked> 同类项合并
-  </label>
-  <button id="downloadBtn">下载</button>
+  <p style="text-align:center;">选择一个 MC 文件，然后点击“转换”按钮。</p>
+  <!-- 文件输入不限制格式 -->
+  <input type="file" id="fileInput" accept="*/*">
+  <div style="text-align:center;">
+    <button id="convertBtn">转换</button>
+    <label>
+      <input type="checkbox" id="mergeCheckbox" checked> 同类项合并
+    </label>
+    <button id="downloadBtn">下载</button>
+  </div>
   <hr>
   <h3>计算结果</h3>
   <div id="calcResult" class="calc-info"></div>
   <h3>BPM 变化区间</h3>
   <div id="timeTable"></div>
-  <h3>生成的 TXT 内容 (normal)</h3>
-  <textarea id="output" readonly></textarea>
-  <h3>生成的 SV TXT 内容 (scroll, 如存在)</h3>
-  <textarea id="outputSV" readonly></textarea>
+  <div class="half-width">
+    <h3>生成的 TXT 内容 (normal)</h3>
+    <textarea id="output" readonly></textarea>
+  </div>
+  <div class="half-width">
+    <h3>生成的 SV TXT 内容 (scroll, 如存在)</h3>
+    <textarea id="outputSV" readonly></textarea>
+  </div>
 
   <script>
     // 全局变量存储转换结果
@@ -135,10 +161,6 @@
     }
 
     // 根据 time 列表，将任意 beat 转换到基准 BPM 下的等效节拍
-    // 参数：
-    // - beatVal: 待转换的 beat 值
-    // - timeList: 数组，每个元素包含 { beat: [...], bpm: ... }
-    // - baseBPM: 基准 bpm（timeList[0].bpm）
     // 假设 timeList 按 beat 升序排列，且第一个 beat 应该为 [0,0,1]
     function convertBeat(beatVal, timeList, baseBPM) {
       let converted = 0;
@@ -195,18 +217,6 @@
         merged.push(mergedCol + "-" + key);
       }
       return merged;
-    }
-
-    // 拆分合并行，将合并行拆分为原始行
-    function splitMergedLine(line) {
-      let parts = line.split("-");
-      let mergedCols = parts[0];
-      let rest = parts.slice(1).join("-");
-      let splitted = [];
-      for (let i = 0; i < mergedCols.length; i++) {
-        splitted.push(mergedCols[i] + "-" + rest);
-      }
-      return splitted;
     }
 
     // 更新文本框显示内容，根据复选框状态决定是否合并
